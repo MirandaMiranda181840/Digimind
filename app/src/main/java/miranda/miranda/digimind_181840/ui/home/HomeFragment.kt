@@ -6,10 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.android.synthetic.main.fragment_home.view.*
 import kotlinx.android.synthetic.main.pendiente_view.view.*
 import miranda.miranda.digimind_181840.Pendiente
@@ -17,12 +16,14 @@ import miranda.miranda.digimind_181840.R
 
 class HomeFragment : Fragment() {
 
+    private var adaptador: AdaptadorPendiente? = null
+
+    companion object{
+        var pendientes = ArrayList<Pendiente>()
+        var first = true
+    }
+
     private lateinit var homeViewModel: HomeViewModel
-
-
-    var pendientes = ArrayList<Pendiente>()
-    var adaptador: AdaptadorPendiente? = null
-
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -31,45 +32,48 @@ class HomeFragment : Fragment() {
     ): View? {
         homeViewModel = ViewModelProviders.of(this).get(HomeViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_home, container, false)
-//        val textView: TextView = root.findViewById(R.id.text_home)
-//        homeViewModel.text.observe(viewLifecycleOwner, Observer {
-//            textView.text = it
-//        })
+
+        if(first){
+            cargarPendiente()
+            first = false
+        }
+
+        adaptador = AdaptadorPendiente(root.context, pendientes)
+        root.gridview.adapter = adaptador
+        //root.gridview.adapter = AdaptadorPendiente(root.context, pendientes)
 
 
         return root
     }
 
     fun cargarPendiente(){
-        pendientes.add(Pendiente("Practice","Everyday","17:00"))
-        pendientes.add(Pendiente("Practice","Everyday","17:00"))
-        pendientes.add(Pendiente("Practice","Everyday","17:00"))
-        pendientes.add(Pendiente("Practice","Everyday","17:00"))
-        pendientes.add(Pendiente("Practice","Everyday","17:00"))
-        pendientes.add(Pendiente("Practice","Everyday","17:00"))
-        pendientes.add(Pendiente("Practice","Everyday","17:00"))
-        pendientes.add(Pendiente("Practice","Everyday","17:00"))
-        pendientes.add(Pendiente("Practice","Everyday","17:00"))
+        pendientes.add(Pendiente("Practice 1", arrayListOf("Tuesday"),"17:30"))
+        pendientes.add(Pendiente("Practice 2",arrayListOf("Monday", "Sunday"),"17:00"))
+        pendientes.add(Pendiente("Practice 3",arrayListOf("Wednesday"),"14:00"))
+        pendientes.add(Pendiente("Practice 4",arrayListOf("Saturday"),"11:00"))
+        pendientes.add(Pendiente("Practice 5",arrayListOf("Friday"),"17:46"))
+        pendientes.add(Pendiente("Practice 6",arrayListOf("Thursday"),"12:25"))
+        pendientes.add(Pendiente("Practice 7",arrayListOf("Monday"),"16:56"))
     }
 
-    class AdaptadorPendiente: BaseAdapter {
+    private class AdaptadorPendiente: BaseAdapter {
 
         var pendientes = ArrayList<Pendiente>()
         var contexto: Context? = null
 
-        constructor(contexto:Context, pendientes:ArrayList<Pendiente>){
+        constructor(contexto: Context, pendientes:ArrayList<Pendiente>){
             this.pendientes = pendientes
             this.contexto = contexto
         }
 
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
             var pendiente = pendientes[position]
-            var inflater = contexto!!.getSystemService(Context.LAYOUT_INFLATER_SERVICE)  as LayoutInflater
+            var inflater = LayoutInflater.from(contexto)
             var vista = inflater.inflate(R.layout.pendiente_view, null)
 
-            vista.pendiente_nombre.setText(pendiente.titulo)
-            vista.pendiente_descripcion.setText(pendiente.descripcion)
-            vista.pendiente_hora.setText(pendiente.hora)
+            vista.pendiente_titulo.setText(pendiente.titulo)
+            vista.pendiente_descripcion.setText(pendiente.days.toString())
+            vista.pendiente_hora.setText(pendiente.time)
 
             return vista
 
